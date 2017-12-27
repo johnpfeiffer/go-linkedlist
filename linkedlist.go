@@ -76,3 +76,22 @@ func (list *LinkedList) Get(index int) *Node {
 	}
 	return nil
 }
+
+// Reduce removes 1 node from the end of the list
+func (list *LinkedList) Reduce() {
+	var current *Node
+	if list.Head == nil {
+		return
+	}
+	if list.Head.next == nil {
+		list.Head = nil
+		return
+	}
+
+	previous := list.Head
+	for current = list.Head; current.next != nil; current = current.next {
+		previous = current
+	}
+	// Note that other callers may continue to hold the reference
+	previous.next = nil
+}

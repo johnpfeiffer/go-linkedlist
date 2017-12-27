@@ -30,6 +30,19 @@ func main() {
 	fmt.Printf("finding value 3: %v \n", list.Find(3))
 	fmt.Printf("finding value 9 (does not exist): %v \n", list.Find(9))
 
+	fmt.Printf("\nremoving nodes 3 and 2")
+	list.Reduce()
+	list.Reduce()
+	displayListInfo(list)
+
+	fmt.Printf("\nremoving the last node")
+	list.Reduce()
+	displayListInfo(list)
+
+	fmt.Printf("\nremoving a non-existent node \n")
+	list.Reduce()
+	displayListInfo(list)
+
 	fmt.Println("done")
 }
 

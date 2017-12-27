@@ -10,12 +10,11 @@ func TestAppendOnly(t *testing.T) {
 	expected := 42
 	t.Run(fmt.Sprintf("Append %#v to a linkedlist", expected), func(t *testing.T) {
 		list := LinkedList{}
-		if list.Head != nil {
-			t.Error("Head pointer for the List should still be nil")
-		}
+		assertEmpty(t, list)
+
 		list.Append(&Node{Data: expected})
 		if list.Head == nil {
-			t.Error("Head pointer for the List is nil")
+			t.Error("Head pointer for the List is unexpectedly nil")
 		}
 		if expected != list.Head.Data {
 			t.Error("\nExpected:", expected, "\nReceived: ", list.Head.Data)
@@ -42,9 +41,8 @@ func TestAppendValue(t *testing.T) {
 	expected := -1
 	t.Run(fmt.Sprintf("AppendValue %#v to a linkedlist", expected), func(t *testing.T) {
 		list := LinkedList{}
-		if list.Head != nil {
-			t.Error("Head pointer for the List should still be nil")
-		}
+		assertEmpty(t, list)
+
 		list.AppendValue(expected)
 		if list.Head == nil {
 			t.Error("Head pointer for the List is nil")
@@ -191,6 +189,49 @@ func TestGetErrors(t *testing.T) {
 	}
 }
 
+func TestRemoveSuccess(t *testing.T) {
+	var testCases = []struct {
+		nodeValues        []int
+		count             int
+		expectedLength    int
+		expectedLastValue int
+	}{
+		{nodeValues: []int{-1, 42}, count: 1, expectedLength: 1, expectedLastValue: -1},
+		{nodeValues: []int{100, -1, 42}, count: 1, expectedLength: 2, expectedLastValue: -1},
+	}
+	for _, tc := range testCases {
+		t.Run(fmt.Sprintf("Reducing %v from linkedlist %#v", tc.count, tc.nodeValues), func(t *testing.T) {
+			list := createList(tc.nodeValues)
+			list.Reduce()
+			if tc.expectedLength != list.Length() {
+				t.Error("\nExpected list length:", tc.expectedLength, "\nReceived list length: ", list.Length())
+			}
+			lastNode := list.Get(tc.expectedLength - 1)
+			if tc.expectedLastValue != lastNode.Data {
+				t.Error("\nExpected node with value:", tc.expectedLastValue, "\nReceived Node: ", lastNode)
+			}
+		})
+	}
+}
+
+func TestRemoveEdgeCases(t *testing.T) {
+	t.Run(fmt.Sprintf("Reducing an empty linkedlist"), func(t *testing.T) {
+		list := LinkedList{}
+		assertEmpty(t, list)
+		list.Reduce()
+		assertEmpty(t, list)
+
+	})
+	t.Run(fmt.Sprintf("Reducing a linkedlist beyond empty"), func(t *testing.T) {
+		list := createList([]int{100, 99})
+		list.Reduce()
+		list.Reduce()
+		list.Reduce()
+		list.Reduce()
+		assertEmpty(t, list)
+	})
+}
+
 // HELPER FUNCTIONS
 func createList(a []int) LinkedList {
 	list := LinkedList{}
@@ -204,5 +245,15 @@ func assertLengthEqual(t *testing.T, expected int, result int) {
 	t.Helper()
 	if expected != result {
 		t.Error("\nExpected Length:", expected, "\nReceived Length: ", result)
+	}
+}
+
+func assertEmpty(t *testing.T, list LinkedList) {
+	t.Helper()
+	if 0 != list.Length() {
+		t.Error("\nExpected list length:", 0, "\nReceived list length: ", list.Length())
+	}
+	if list.Head != nil {
+		t.Error("Head pointer for the List should still be nil")
 	}
 }
