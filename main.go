@@ -3,25 +3,23 @@ package linkedlist
 /*
 package main
 
-import "fmt"
+import (
+	"fmt"
+
+	"bitbucket.org/johnpfeiffer/linkedlist"
+)
 
 func main() {
-	a := Node{data: 1}
-	list := LinkedList{}
-	fmt.Printf("\n%d nodes, head: %v\n", list.Length(), list.head)
-	fmt.Printf(list.Display())
+	a := linkedlist.Node{Data: 1}
+	list := linkedlist.LinkedList{}
+	displayListInfo(list)
 
 	list.Append(&a)
-	fmt.Printf("\n%d node, head: %v\n", list.Length(), list.head)
-	fmt.Printf(list.Display())
-
+	displayListInfo(list)
 	list.AppendValue(2)
-	fmt.Printf("\n%d nodes, head: %v\n", list.Length(), list.head)
-	fmt.Printf(list.Display())
-
+	displayListInfo(list)
 	list.AppendValue(3)
-	fmt.Printf("\n%d nodes, head: %v\n", list.Length(), list.head)
-	fmt.Printf(list.Display())
+	displayListInfo(list)
 
 	fmt.Printf("\ngetting the first item (index 0): %v \n", list.Get(0))
 	fmt.Printf("getting second item: %v \n", list.Get(1))
@@ -33,5 +31,10 @@ func main() {
 	fmt.Printf("finding value 9 (does not exist): %v \n", list.Find(9))
 
 	fmt.Println("done")
+}
+
+func displayListInfo(list linkedlist.LinkedList) {
+	fmt.Printf("\n%d nodes, head: %v\n", list.Length(), list.Head)
+	fmt.Printf(list.Display())
 }
 */

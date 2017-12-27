@@ -10,30 +10,30 @@ func TestAppendOnly(t *testing.T) {
 	expected := 42
 	t.Run(fmt.Sprintf("Append %#v to a linkedlist", expected), func(t *testing.T) {
 		list := LinkedList{}
-		if list.head != nil {
+		if list.Head != nil {
 			t.Error("Head pointer for the List should still be nil")
 		}
-		list.Append(&Node{data: expected})
-		if list.head == nil {
+		list.Append(&Node{Data: expected})
+		if list.Head == nil {
 			t.Error("Head pointer for the List is nil")
 		}
-		if expected != list.head.data {
-			t.Error("\nExpected:", expected, "\nReceived: ", list.head.data)
+		if expected != list.Head.Data {
+			t.Error("\nExpected:", expected, "\nReceived: ", list.Head.Data)
 		}
-		if list.head.next != nil {
+		if list.Head.next != nil {
 			t.Error("Next pointer for the List should be nil")
 		}
 
 		expected2 := expected + 1
-		list.Append(&Node{data: expected2})
-		if list.head == nil {
+		list.Append(&Node{Data: expected2})
+		if list.Head == nil {
 			t.Error("Head pointer for the List is nil")
 		}
-		if list.head.next == nil {
+		if list.Head.next == nil {
 			t.Error("Next pointer for the List should not be nil")
 		}
-		if expected2 != list.head.next.data {
-			t.Error("\nExpected:", expected2, "\nReceived: ", list.head.data)
+		if expected2 != list.Head.next.Data {
+			t.Error("\nExpected:", expected2, "\nReceived: ", list.Head.Data)
 		}
 	})
 }
@@ -42,30 +42,30 @@ func TestAppendValue(t *testing.T) {
 	expected := -1
 	t.Run(fmt.Sprintf("AppendValue %#v to a linkedlist", expected), func(t *testing.T) {
 		list := LinkedList{}
-		if list.head != nil {
+		if list.Head != nil {
 			t.Error("Head pointer for the List should still be nil")
 		}
 		list.AppendValue(expected)
-		if list.head == nil {
+		if list.Head == nil {
 			t.Error("Head pointer for the List is nil")
 		}
-		if expected != list.head.data {
-			t.Error("\nExpected:", expected, "\nReceived: ", list.head.data)
+		if expected != list.Head.Data {
+			t.Error("\nExpected:", expected, "\nReceived: ", list.Head.Data)
 		}
-		if list.head.next != nil {
+		if list.Head.next != nil {
 			t.Error("Next pointer for the List should be nil")
 		}
 
 		expected2 := expected - 1
 		list.AppendValue(expected2)
-		if list.head == nil {
+		if list.Head == nil {
 			t.Error("Head pointer for the List is nil")
 		}
-		if list.head.next == nil {
+		if list.Head.next == nil {
 			t.Error("Next pointer for the List should not be nil")
 		}
-		if expected2 != list.head.next.data {
-			t.Error("\nExpected:", expected2, "\nReceived: ", list.head.next.data)
+		if expected2 != list.Head.next.Data {
+			t.Error("\nExpected:", expected2, "\nReceived: ", list.Head.next.Data)
 		}
 	})
 }
@@ -118,7 +118,7 @@ func TestFindFound(t *testing.T) {
 		t.Run(fmt.Sprintf("Finding %v from linkedlist %#v", tc.expected, tc.nodeValues), func(t *testing.T) {
 			list := createList(tc.nodeValues)
 			result := list.Find(tc.expected)
-			if tc.expected != result.data {
+			if tc.expected != result.Data {
 				t.Error("\nExpected node with value:", tc.expected, "\nReceived Node: ", result)
 			}
 		})
@@ -163,7 +163,7 @@ func TestGetSuccess(t *testing.T) {
 		t.Run(fmt.Sprintf("Getting index %v from linkedlist %#v", tc.location, tc.nodeValues), func(t *testing.T) {
 			list := createList(tc.nodeValues)
 			result := list.Get(tc.location)
-			if tc.expected != result.data {
+			if tc.expected != result.Data {
 				t.Error("\nExpected node with value:", tc.expected, "\nReceived Node: ", result)
 			}
 		})
