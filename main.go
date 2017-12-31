@@ -43,6 +43,14 @@ func main() {
 	list.Reduce()
 	displayListInfo(list)
 
+	fmt.Printf("\nInserting values \n")
+	list.InsertValue(101, 0)
+	list.InsertValue(104, 9)
+	list.InsertValue(100, 0)
+	list.InsertValue(102, 2)
+	list.InsertValue(103, 3)
+	displayListInfo(list)
+
 	fmt.Println("done")
 }
 

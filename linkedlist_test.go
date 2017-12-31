@@ -15,10 +15,8 @@ func TestAppendOnly(t *testing.T) {
 		// WHEN
 		list.Append(&Node{Data: expected})
 		// THEN
-		assertNode(t, "Head", list.Head, expected)
-		if list.Head.next != nil {
-			t.Error("Next pointer for the List Head should be nil")
-		}
+		assertHead(t, list.Head, expected)
+
 		expected2 := expected + 1
 		// WHEN
 		list.Append(&Node{Data: expected2})
@@ -34,10 +32,7 @@ func TestAppendValue(t *testing.T) {
 		list := LinkedList{}
 		assertEmpty(t, list)
 		list.AppendValue(expected)
-		assertNode(t, "Head", list.Head, expected)
-		if list.Head.next != nil {
-			t.Error("Next pointer for the List Head should be nil")
-		}
+		assertHead(t, list.Head, expected)
 		expected2 := expected - 1
 		list.AppendValue(expected2)
 		assertNode(t, "Head", list.Head, expected)
@@ -51,14 +46,13 @@ func TestPrependOnly(t *testing.T) {
 		list := LinkedList{}
 		assertEmpty(t, list)
 		list.Prepend(&Node{Data: expected})
-		assertNode(t, "Head", list.Head, expected)
-		if list.Head.next != nil {
-			t.Error("Next pointer for the List Head should be nil")
-		}
+		assertHead(t, list.Head, expected)
+		assertLengthEqual(t, 1, list.Length())
 		expected2 := expected + 1
 		list.Prepend(&Node{Data: expected2})
 		assertNode(t, "Head", list.Head, expected2)
 		assertNode(t, "Head.next", list.Head.next, expected)
+		assertLengthEqual(t, 2, list.Length())
 	})
 }
 
@@ -67,17 +61,42 @@ func TestPrependValue(t *testing.T) {
 	list := LinkedList{}
 	assertEmpty(t, list)
 	list.PrependValue(expected)
-	assertNode(t, "Head", list.Head, expected)
-	if list.Head.next != nil {
-		t.Error("Next pointer for the List Head should be nil")
-	}
+	assertHead(t, list.Head, expected)
+	expectedLength := 1
+	assertLengthEqual(t, expectedLength, list.Length())
 	for i := expected + 1; i < 1002; i = i + 100 {
 		t.Run(fmt.Sprintf("%#v to a linkedlist", i), func(t *testing.T) {
 			previous := list.Head.Data
 			list.PrependValue(i)
 			assertNode(t, "Head", list.Head, i)
 			assertNode(t, "Head.next", list.Head.next, previous)
+			expectedLength++
+			assertLengthEqual(t, expectedLength, list.Length())
 		})
+	}
+}
+
+func TestInsertValue(t *testing.T) {
+	expected := 0
+	list := LinkedList{}
+	assertEmpty(t, list)
+	list.InsertValue(expected, 0)
+	assertHead(t, list.Head, expected)
+	expectedLength := 1
+	assertLengthEqual(t, expectedLength, list.Length())
+	for i := expected + 1; i < 1002; i = i + 100 {
+		t.Run(fmt.Sprintf("%#v to a linkedlist", i), func(t *testing.T) {
+			list.InsertValue(i, 1)
+			assertNode(t, "Head", list.Head, expected)
+			assertNode(t, "Head.next", list.Head.next, i)
+			expectedLength++
+			assertLengthEqual(t, expectedLength, list.Length())
+		})
+	}
+	last := list.Find(1)
+	assertNode(t, "Last", last, 1)
+	if last.next != nil {
+		t.Error("Next pointer for the last node should be nil but it has value:", last.next.Data)
 	}
 }
 
@@ -254,7 +273,7 @@ func createList(a []int) LinkedList {
 	return list
 }
 
-func assertLengthEqual(t *testing.T, expected int, result int) {
+func assertLengthEqual(t *testing.T, expected, result int) {
 	t.Helper()
 	if expected != result {
 		t.Error("\nExpected Length:", expected, "\nReceived Length: ", result)
@@ -278,5 +297,13 @@ func assertNode(t *testing.T, hint string, n *Node, expectedData int) {
 	}
 	if expectedData != n.Data {
 		t.Error("\n", hint, "data expected:", expectedData, "\nReceived: ", n.Data)
+	}
+}
+
+func assertHead(t *testing.T, n *Node, expectedData int) {
+	t.Helper()
+	assertNode(t, "Head", n, expectedData)
+	if n.next != nil {
+		t.Error("Next pointer for the List Head should be nil")
 	}
 }

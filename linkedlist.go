@@ -50,6 +50,36 @@ func (list *LinkedList) Prepend(n *Node) {
 	return
 }
 
+// InsertValue is a helper function that can take a value and insert it directly
+func (list *LinkedList) InsertValue(n, location int) {
+	list.Insert(&Node{Data: n}, location)
+}
+
+// Insert adds a node to a specific (0 based index) location in the list
+// a location beyond the list length is treated like an append
+func (list *LinkedList) Insert(n *Node, location int) {
+	if location == 0 {
+		list.Prepend(n)
+		return
+	}
+	if location >= list.Length() {
+		fmt.Println("WARNING: treating insert beyond the end of the list as append")
+		list.Append(n)
+		return
+	}
+	count := 1
+	previous := list.Head
+	for current := list.Head.next; current != nil; current = current.next {
+		if count == location {
+			previous.next = n
+			n.next = current
+			return
+		}
+		previous = current
+		count++
+	}
+}
+
 // Length counts all the nodes in a linked list
 func (list *LinkedList) Length() int {
 	var current *Node
