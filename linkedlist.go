@@ -25,12 +25,29 @@ func (list *LinkedList) AppendValue(n int) {
 func (list *LinkedList) Append(n *Node) {
 	if list.Head == nil {
 		list.Head = n
-	} else {
-		var current *Node
-		for current = list.Head; current.next != nil; current = current.next {
-		}
-		current.next = n
+		return
 	}
+	var current *Node
+	for current = list.Head; current.next != nil; current = current.next {
+	}
+	current.next = n
+}
+
+// PrependValue is a helper function that can take a value and prepend it directly
+func (list *LinkedList) PrependValue(n int) {
+	list.Prepend(&Node{Data: n})
+}
+
+// Prepend adds a node to the beginning of the list
+func (list *LinkedList) Prepend(n *Node) {
+	if list.Head == nil {
+		list.Head = n
+		return
+	}
+	old := list.Head
+	list.Head = n
+	n.next = old
+	return
 }
 
 // Length counts all the nodes in a linked list
