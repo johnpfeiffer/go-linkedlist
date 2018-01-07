@@ -3,6 +3,7 @@ package linkedlist
 import (
 	"bytes"
 	"fmt"
+	"strings"
 )
 
 // Node contains data (and usually a value or a pointer to a value) and a pointer to the next node
@@ -98,6 +99,16 @@ func (list *LinkedList) Display() string {
 		b.WriteString(fmt.Sprintf("  %v\n", current))
 	}
 	return b.String()
+}
+
+// Values returns all of the values in a linked list
+func (list *LinkedList) Values() string {
+	var current *Node
+	var b bytes.Buffer
+	for current = list.Head; current != nil; current = current.next {
+		b.WriteString(fmt.Sprintf(" %d", current.Data))
+	}
+	return strings.TrimSpace(b.String())
 }
 
 // Find returns the first node that has a matching key

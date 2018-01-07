@@ -2,9 +2,21 @@ package linkedlist
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"testing"
 )
+
+var testCases = []struct {
+	dataValues []int
+	length     int
+}{
+	{dataValues: []int{}, length: 0},
+	{dataValues: []int{1}, length: 1},
+	{dataValues: []int{-1, 42}, length: 2},
+	{dataValues: []int{-1, 100, 9}, length: 3},
+	{dataValues: []int{1, 999, 99, 10001}, length: 4},
+}
 
 func TestAppendOnly(t *testing.T) {
 	expected := 42
@@ -23,21 +35,24 @@ func TestAppendOnly(t *testing.T) {
 		// THEN
 		assertNode(t, "Head", list.Head, expected)
 		assertNode(t, "Head.next", list.Head.next, expected2)
+		assertList(t, &list, []int{expected, expected2})
 	})
 }
 
 func TestAppendValue(t *testing.T) {
-	expected := -1
-	t.Run(fmt.Sprintf("%#v to a linkedlist", expected), func(t *testing.T) {
-		list := LinkedList{}
-		assertEmpty(t, list)
-		list.AppendValue(expected)
-		assertHead(t, list.Head, expected)
-		expected2 := expected - 1
-		list.AppendValue(expected2)
-		assertNode(t, "Head", list.Head, expected)
-		assertNode(t, "Head.next", list.Head.next, expected2)
-	})
+	for _, tc := range testCases {
+		t.Run(fmt.Sprintf("%#v to a linkedlist", tc.dataValues), func(t *testing.T) {
+			list := LinkedList{}
+			for i := 0; i < len(tc.dataValues); i++ {
+				list.AppendValue(tc.dataValues[i])
+				if i == 0 {
+					assertHead(t, list.Head, tc.dataValues[0])
+				}
+			}
+			assertLengthEqual(t, tc.length, list.Length())
+			assertList(t, &list, tc.dataValues)
+		})
+	}
 }
 
 func TestPrependOnly(t *testing.T) {
@@ -53,25 +68,30 @@ func TestPrependOnly(t *testing.T) {
 		assertNode(t, "Head", list.Head, expected2)
 		assertNode(t, "Head.next", list.Head.next, expected)
 		assertLengthEqual(t, 2, list.Length())
+		assertList(t, &list, []int{expected2, expected})
 	})
 }
 
 func TestPrependValue(t *testing.T) {
-	expected := 0
-	list := LinkedList{}
-	assertEmpty(t, list)
-	list.PrependValue(expected)
-	assertHead(t, list.Head, expected)
-	expectedLength := 1
-	assertLengthEqual(t, expectedLength, list.Length())
-	for i := expected + 1; i < 1002; i = i + 100 {
-		t.Run(fmt.Sprintf("%#v to a linkedlist", i), func(t *testing.T) {
-			previous := list.Head.Data
-			list.PrependValue(i)
-			assertNode(t, "Head", list.Head, i)
-			assertNode(t, "Head.next", list.Head.next, previous)
-			expectedLength++
-			assertLengthEqual(t, expectedLength, list.Length())
+	for _, tc := range testCases {
+		t.Run(fmt.Sprintf("%#v to a linkedlist", tc.dataValues), func(t *testing.T) {
+			list := LinkedList{}
+			if len(tc.dataValues) > 0 {
+				list.PrependValue(tc.dataValues[0])
+				assertHead(t, list.Head, tc.dataValues[0])
+				assertLengthEqual(t, 1, list.Length())
+			}
+			for i := 1; i < len(tc.dataValues); i++ {
+				previous := list.Head.Data
+
+				list.PrependValue(tc.dataValues[i])
+
+				assertNode(t, "Head", list.Head, tc.dataValues[i])
+				assertNode(t, "Head.next", list.Head.next, previous)
+				assertLengthEqual(t, i+1, list.Length())
+			}
+			assertLengthEqual(t, tc.length, list.Length())
+			assertList(t, &list, reverseData(tc.dataValues))
 		})
 	}
 }
@@ -273,6 +293,16 @@ func createList(a []int) LinkedList {
 	return list
 }
 
+func reverseData(original []int) []int {
+	a := make([]int, len(original))
+	copy(a, original)
+	last := len(a) - 1
+	for i := 0; i < len(a)/2; i++ {
+		a[i], a[last-i] = a[last-i], a[i]
+	}
+	return a
+}
+
 func assertLengthEqual(t *testing.T, expected, result int) {
 	t.Helper()
 	if expected != result {
@@ -305,5 +335,20 @@ func assertHead(t *testing.T, n *Node, expectedData int) {
 	assertNode(t, "Head", n, expectedData)
 	if n.next != nil {
 		t.Error("Next pointer for the List Head should be nil")
+	}
+}
+
+func assertList(t *testing.T, target *LinkedList, expectedData []int) {
+	t.Helper()
+	result := target.Values()
+	parts := strings.Fields(result)
+	for i := 0; i < len(parts); i++ {
+		current, err := strconv.Atoi(parts[i])
+		if err != nil {
+			t.Errorf("List index %d was expected: %d but error: %v", i, expectedData[i], err)
+		}
+		if current != expectedData[i] {
+			t.Errorf("List index %d was expected: %d but received: %d", i, expectedData[i], current)
+		}
 	}
 }
