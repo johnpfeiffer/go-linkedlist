@@ -50,6 +50,7 @@ func main() {
 	list.InsertValue(102, 2)
 	list.InsertValue(103, 3)
 	displayListInfo(list)
+	fmt.Println(list.Values())
 
 	fmt.Println("done")
 }

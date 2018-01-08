@@ -7,6 +7,8 @@ import (
 	"testing"
 )
 
+// TODO: probably could be improved by leveraging https://github.com/stretchr/testify
+
 var testCases = []struct {
 	dataValues []int
 	length     int
@@ -138,6 +140,26 @@ func TestLength(t *testing.T) {
 	}
 }
 
+func TestValuesOnly(t *testing.T) {
+	expected := 42
+	t.Run(fmt.Sprintf("%#v to a linkedlist", expected), func(t *testing.T) {
+		list := LinkedList{}
+		if "" != list.Values() {
+			t.Error("Expected empty linked list to have values as empty string")
+		}
+		list.Head = &Node{Data: expected}
+		s := strconv.Itoa(expected)
+		if s != list.Values() {
+			t.Errorf("Expected linked list to have values %d but received %s", expected, list.Values())
+		}
+		list.Head.next = &Node{Data: expected + 1}
+		s = s + " " + strconv.Itoa(expected+1)
+		if s != list.Values() {
+			t.Errorf("Expected linked list to have values %s but received %s", s, list.Values())
+		}
+	})
+}
+
 func TestDisplay(t *testing.T) {
 	t.Run(fmt.Sprintf("Displaying a linkedlist"), func(t *testing.T) {
 		list := LinkedList{}
@@ -241,32 +263,28 @@ func TestGetErrors(t *testing.T) {
 	}
 }
 
-func TestRemoveSuccess(t *testing.T) {
-	var testCases = []struct {
-		nodeValues        []int
-		count             int
-		expectedLength    int
-		expectedLastValue int
-	}{
-		{nodeValues: []int{-1, 42}, count: 1, expectedLength: 1, expectedLastValue: -1},
-		{nodeValues: []int{100, -1, 42}, count: 1, expectedLength: 2, expectedLastValue: -1},
-	}
+func TestReduceSuccess(t *testing.T) {
 	for _, tc := range testCases {
-		t.Run(fmt.Sprintf("Reducing %v from linkedlist %#v", tc.count, tc.nodeValues), func(t *testing.T) {
-			list := createList(tc.nodeValues)
+		t.Run(fmt.Sprintf("Reducing from linkedlist %#v", tc.dataValues), func(t *testing.T) {
+			list := createList(tc.dataValues)
+			previousLength := list.Length()
+
 			list.Reduce()
-			if tc.expectedLength != list.Length() {
-				t.Error("\nExpected list length:", tc.expectedLength, "\nReceived list length: ", list.Length())
+
+			expectedLength := previousLength - 1
+			if previousLength < 2 {
+				expectedLength = 0
+			} else {
+				lastNode := list.Get(expectedLength - 1)
+				assertNode(t, "Last Node", lastNode, tc.dataValues[expectedLength-1])
 			}
-			lastNode := list.Get(tc.expectedLength - 1)
-			if tc.expectedLastValue != lastNode.Data {
-				t.Error("\nExpected node with value:", tc.expectedLastValue, "\nReceived Node: ", lastNode)
-			}
+			assertLengthEqual(t, expectedLength, list.Length())
+			assertList(t, &list, tc.dataValues[:expectedLength])
 		})
 	}
 }
 
-func TestRemoveEdgeCases(t *testing.T) {
+func TestReduceEdgeCases(t *testing.T) {
 	t.Run(fmt.Sprintf("Reducing an empty linkedlist"), func(t *testing.T) {
 		list := LinkedList{}
 		assertEmpty(t, list)
@@ -282,6 +300,72 @@ func TestRemoveEdgeCases(t *testing.T) {
 		list.Reduce()
 		assertEmpty(t, list)
 	})
+}
+
+func TestDeleteHeadSuccess(t *testing.T) {
+	for _, tc := range testCases {
+		if len(tc.dataValues) > 0 {
+			t.Run(fmt.Sprintf("Deleting index 0 from linkedlist %#v", tc.dataValues), func(t *testing.T) {
+				list := createList(tc.dataValues)
+				previousLength := list.Length()
+				expectedNode := list.Head.next
+
+				err := list.Delete(0)
+				if err != nil {
+					t.Errorf("No error was expected but received: %v", err)
+				}
+
+				expectedLength := previousLength - 1
+				if previousLength < 2 {
+					expectedLength = 0
+				} else {
+					assertNode(t, "New Head", list.Head, expectedNode.Data)
+				}
+				assertLengthEqual(t, expectedLength, list.Length())
+				assertList(t, &list, tc.dataValues[1:])
+			})
+		}
+	}
+}
+
+func TestDeleteSuccess(t *testing.T) {
+	for _, tc := range testCases {
+		if len(tc.dataValues) > 1 {
+			t.Run(fmt.Sprintf("Deleting index 1 from linkedlist %#v", tc.dataValues), func(t *testing.T) {
+				list := createList(tc.dataValues)
+				previousLength := list.Length()
+
+				err := list.Delete(1)
+				if err != nil {
+					t.Errorf("No error was expected but received: %v", err)
+				}
+
+				assertLengthEqual(t, previousLength-1, list.Length())
+				expectedValues := []int{}
+				expectedValues = append(expectedValues, tc.dataValues[0])
+				expectedValues = append(expectedValues, tc.dataValues[2:]...)
+				assertList(t, &list, expectedValues)
+			})
+		}
+	}
+}
+
+func TestDeleteEdgeCases(t *testing.T) {
+	for _, tc := range testCases {
+		t.Run(fmt.Sprintf("Negative Index on list %v", tc.dataValues), func(t *testing.T) {
+			expected := "Cannot remove an index that is less than zero"
+			list := createList(tc.dataValues)
+			err := list.Delete(-1)
+			assertError(t, expected, err)
+		})
+		t.Run(fmt.Sprintf("Out of range index on list %v", tc.dataValues), func(t *testing.T) {
+			outOfRange := len(tc.dataValues) + 1
+			expected := fmt.Sprintf("Index %d is out of range of the length of the list: %d", outOfRange, len(tc.dataValues))
+			list := createList(tc.dataValues)
+			err := list.Delete(outOfRange)
+			assertError(t, expected, err)
+		})
+	}
 }
 
 // HELPER FUNCTIONS
@@ -341,6 +425,12 @@ func assertHead(t *testing.T, n *Node, expectedData int) {
 func assertList(t *testing.T, target *LinkedList, expectedData []int) {
 	t.Helper()
 	result := target.Values()
+	if len(expectedData) == 0 {
+		if "" != result {
+			t.Errorf("List should have been empty but received: %v", result)
+		}
+		return
+	}
 	parts := strings.Fields(result)
 	for i := 0; i < len(parts); i++ {
 		current, err := strconv.Atoi(parts[i])
@@ -350,5 +440,12 @@ func assertList(t *testing.T, target *LinkedList, expectedData []int) {
 		if current != expectedData[i] {
 			t.Errorf("List index %d was expected: %d but received: %d", i, expectedData[i], current)
 		}
+	}
+}
+
+func assertError(t *testing.T, expected string, err error) {
+	t.Helper()
+	if (err == nil) || (err.Error() != expected) {
+		t.Errorf("Should have received an error: %v", expected)
 	}
 }

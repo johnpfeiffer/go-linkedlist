@@ -137,7 +137,6 @@ func (list *LinkedList) Get(index int) *Node {
 
 // Reduce removes 1 node from the end of the list
 func (list *LinkedList) Reduce() {
-	var current *Node
 	if list.Head == nil {
 		return
 	}
@@ -145,11 +144,41 @@ func (list *LinkedList) Reduce() {
 		list.Head = nil
 		return
 	}
-
+	var current *Node
 	previous := list.Head
 	for current = list.Head; current.next != nil; current = current.next {
 		previous = current
 	}
 	// Note that other callers may continue to hold the reference
 	previous.next = nil
+}
+
+// Delete removes a node given a provided index (using a zero index system)
+func (list *LinkedList) Delete(index int) error {
+	if index < 0 {
+		return fmt.Errorf("Cannot remove an index that is less than zero")
+	}
+	if index > list.Length() {
+		return fmt.Errorf("Index %d is out of range of the length of the list: %d", index, list.Length())
+	}
+	if index == 0 {
+		if list.Head.next != nil {
+			list.Head = list.Head.next
+		} else {
+			list.Head = nil
+		}
+		return nil
+	}
+	previous := list.Head
+	current := list.Head.next
+	count := 1
+	for {
+		if count == index {
+			previous.next = current.next
+			return nil
+		}
+		previous = current
+		current = current.next
+		count++
+	}
 }
