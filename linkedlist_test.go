@@ -122,6 +122,35 @@ func TestInsertValue(t *testing.T) {
 	}
 }
 
+func TestInsertSimple(t *testing.T) {
+	list := LinkedList{}
+	list.Insert(&Node{Data: 2}, 0)
+	assertHead(t, list.Head, 2)
+	assertLengthEqual(t, 1, list.Length())
+
+	list.Insert(&Node{Data: 1}, 0)
+	assertNode(t, "Head", list.Head, 1)
+	assertNode(t, "Last", list.Head.next, 2)
+	assertLengthEqual(t, 2, list.Length())
+
+	list.Insert(&Node{Data: 5}, 3)
+	assertLengthEqual(t, 3, list.Length())
+
+	list.Insert(&Node{Data: 3}, 2)
+	assertLengthEqual(t, 4, list.Length())
+
+	list.Insert(&Node{Data: 4}, 1)
+	assertNode(t, "Head", list.Head, 1)
+	assertLengthEqual(t, 5, list.Length())
+
+	last := list.Find(5)
+	assertNode(t, "Last", last, 5)
+	if last.next != nil {
+		t.Error("Next pointer for the last node should be nil but it has value:", last.next.Data)
+	}
+
+}
+
 func TestLength(t *testing.T) {
 	var testCases = []struct {
 		nodeValues []int
@@ -316,13 +345,31 @@ func TestDeleteHeadSuccess(t *testing.T) {
 				}
 
 				expectedLength := previousLength - 1
-				if previousLength < 2 {
+				if previousLength == 1 {
 					expectedLength = 0
 				} else {
 					assertNode(t, "New Head", list.Head, expectedNode.Data)
 				}
 				assertLengthEqual(t, expectedLength, list.Length())
 				assertList(t, &list, tc.dataValues[1:])
+			})
+		}
+	}
+}
+
+func TestDeleteTailSuccess(t *testing.T) {
+	for _, tc := range testCases {
+		if len(tc.dataValues) > 0 {
+			lastIndex := len(tc.dataValues) - 1
+			t.Run(fmt.Sprintf("Deleting the last item (index %v) from linkedlist %#v", lastIndex, tc.dataValues), func(t *testing.T) {
+				list := createList(tc.dataValues)
+				err := list.Delete(lastIndex)
+				if err != nil {
+					t.Errorf("No error was expected but received: %v", err)
+				}
+				assertLengthEqual(t, len(tc.dataValues)-1, list.Length())
+				fmt.Println(list.Values())
+				assertList(t, &list, tc.dataValues[:len(tc.dataValues)-1])
 			})
 		}
 	}

@@ -52,6 +52,11 @@ func main() {
 	displayListInfo(list)
 	fmt.Println(list.Values())
 
+	fmt.Println("Deleting odd values")
+	list.Delete(1)
+	list.Delete(2)
+	fmt.Println(list.Values())
+
 	fmt.Println("done")
 }
 
