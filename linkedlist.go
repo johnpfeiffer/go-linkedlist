@@ -182,3 +182,37 @@ func (list *LinkedList) Delete(index int) error {
 		count++
 	}
 }
+
+// ReverseEasy changes the ordering of the nodes so the tail becomes the head and the head becomes the last item
+func (list *LinkedList) ReverseEasy() {
+	if list.Head == nil || list.Head.next == nil {
+		return
+	}
+	a := make([]int, list.Length())
+	current := list.Head
+	for i := list.Length() - 1; i >= 0; i-- {
+		a[i] = current.Data
+		current = current.next
+	}
+
+	i := 0
+	for current = list.Head; current != nil; current = current.next {
+		current.Data = a[i]
+		i++
+	}
+}
+
+// Reverse changes the links of the nodes that eventually the head becomes the last item
+// For each node we need a pointer to the previous node
+// we need to preserve node.next to continue iterating
+// then node.next can point to the previous
+func (list *LinkedList) Reverse() {
+	var previous *Node
+	for current := list.Head; current != nil; {
+		temp := current.next
+		current.next = previous
+		previous = current
+		current = temp
+	}
+	list.Head = previous
+}

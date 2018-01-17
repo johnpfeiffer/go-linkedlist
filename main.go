@@ -57,6 +57,22 @@ func main() {
 	list.Delete(2)
 	fmt.Println(list.Values())
 
+	list.Delete(2)
+	fmt.Println("reversing")
+	fmt.Println(list.Values())
+	list.Reverse()
+	fmt.Println(list.Values())
+
+	list.InsertValue(101, 1)
+	fmt.Println(list.Values())
+	list.Reverse()
+	fmt.Println(list.Values())
+
+	list.AppendValue(103)
+	fmt.Println(list.Values())
+	list.Reverse()
+	fmt.Println(list.Values())
+
 	fmt.Println("done")
 }
 
@@ -64,4 +80,5 @@ func displayListInfo(list linkedlist.LinkedList) {
 	fmt.Printf("\n%d nodes, head: %v\n", list.Length(), list.Head)
 	fmt.Printf(list.Display())
 }
+
 */

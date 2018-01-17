@@ -2,6 +2,7 @@ package linkedlist
 
 import (
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 	"testing"
@@ -347,6 +348,7 @@ func TestDeleteHeadSuccess(t *testing.T) {
 				expectedLength := previousLength - 1
 				if previousLength == 1 {
 					expectedLength = 0
+					assertEmpty(t, list)
 				} else {
 					assertNode(t, "New Head", list.Head, expectedNode.Data)
 				}
@@ -368,7 +370,6 @@ func TestDeleteTailSuccess(t *testing.T) {
 					t.Errorf("No error was expected but received: %v", err)
 				}
 				assertLengthEqual(t, len(tc.dataValues)-1, list.Length())
-				fmt.Println(list.Values())
 				assertList(t, &list, tc.dataValues[:len(tc.dataValues)-1])
 			})
 		}
@@ -411,6 +412,53 @@ func TestDeleteEdgeCases(t *testing.T) {
 			list := createList(tc.dataValues)
 			err := list.Delete(outOfRange)
 			assertError(t, expected, err)
+		})
+	}
+}
+
+func TestReverseEdgeCases(t *testing.T) {
+	t.Run(fmt.Sprintf("empty or one item"), func(t *testing.T) {
+		list := LinkedList{}
+		list.Reverse()
+		assertEmpty(t, list)
+		list.AppendValue(1)
+		assertHead(t, list.Head, 1)
+		list.Reverse()
+		assertHead(t, list.Head, 1)
+	})
+}
+
+func TestReverseSuccess(t *testing.T) {
+	var testCasesOrdered = []struct {
+		dataValues []int
+		length     int
+	}{
+		{dataValues: []int{}, length: 0},
+		{dataValues: []int{1}, length: 1},
+		{dataValues: []int{2, 1}, length: 2},
+		{dataValues: []int{3, 2, 1}, length: 3},
+		{dataValues: []int{4, 3, 2, 1}, length: 4},
+	}
+	for _, tc := range testCasesOrdered {
+		t.Run(fmt.Sprintf("%v", tc.dataValues), func(t *testing.T) {
+			list := createList(tc.dataValues)
+			list.Reverse()
+			assertLengthEqual(t, tc.length, list.Length())
+			sorted := make([]int, len(tc.dataValues))
+			copy(sorted, tc.dataValues)
+			sort.Ints(sorted)
+			assertList(t, &list, sorted)
+		})
+	}
+	for _, tc := range testCasesOrdered {
+		t.Run(fmt.Sprintf("ArrayMethod %v", tc.dataValues), func(t *testing.T) {
+			list := createList(tc.dataValues)
+			list.ReverseEasy()
+			assertLengthEqual(t, tc.length, list.Length())
+			sorted := make([]int, len(tc.dataValues))
+			copy(sorted, tc.dataValues)
+			sort.Ints(sorted)
+			assertList(t, &list, sorted)
 		})
 	}
 }
